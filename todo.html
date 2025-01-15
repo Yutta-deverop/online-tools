@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do リスト</title>
+    <style>
+        :root {
+            --main-bg-color: #b3e5fc; /* Default Blue */
+            --accent-color: #81d4fa;
+            --text-color: #333;
+            --container-bg-color: #fff;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: var(--main-bg-color);
+            color: var(--text-color);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 20px 0;
+        }
+
+        .theme-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .theme-buttons button.white { background-color: #ffffff; color: #333; }
+        .theme-buttons button.gray { background-color: #9e9e9e; }
+        .theme-buttons button.blue { background-color: #81d4fa; }
+        .theme-buttons button.green { background-color: #a5d6a7; }
+        .theme-buttons button.pink { background-color: #f8bbd0; }
+
+        .todo-container {
+            width: 90%;
+            max-width: 400px;
+            background: var(--container-bg-color);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .todo-input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        #todo-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .add-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: var(--accent-color);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--container-bg-color);
+        }
+
+        .task-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .task-controls button {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--accent-color);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .control-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--accent-color);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #finish-button {
+            display: block;
+        }
+
+        #clear-button {
+            display: none;
+        }
+
+        .animation {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -100px;
+            font-size: 1.5rem;
+            display: none;
+        }
+
+        .active-animation {
+            display: block;
+            animation: pop 0.5s ease-out;
+        }
+
+        .celebration { color: #ffeb3b; }
+        .sad-animation { color: #ff4081; }
+
+        @keyframes pop {
+            0% { transform: translate(-50%, 10px); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+@media (max-width: 768px) {
+  #todo-container {
+    width: 95%;
+  }
+
+  #theme-buttons {
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  #theme-buttons button {
+    width: calc(50% - 5px); /* ボタン幅調整 */
+    text-align: center;
+  }
+
+  #todo-input-container {
+    flex-direction: column;
+  }
+
+  #todo-input {
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+
+  #add-todo-button {
+    width: 100%;
+    border-radius: 4px;
+  }
+}
+
+.theme-dropdown {
+    position: relative;
+    display: none; /* 初期状態は非表示 */
+}
+
+.dropdown-toggle {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--accent-color);
+    color: #fff;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--container-bg-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    display: none; /* 非表示 */
+    flex-direction: column;
+    z-index: 10;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+/* 540px以下で表示切り替え */
+@media (max-width: 540px) {
+    .theme-buttons {
+        display: none;
+    }
+
+    .theme-dropdown {
+        display: block;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <h1>To-Do リスト</h1>
+
+    <div class="theme-buttons">
+        <button class="white" onclick="setTheme('white')">ホワイト</button>
+        <button class="gray" onclick="setTheme('gray')">グレー</button>
+        <button class="blue" onclick="setTheme('blue')">ブルー</button>
+        <button class="green" onclick="setTheme('green')">グリーン</button>
+        <button class="pink" onclick="setTheme('pink')">ピンク</button>
+    </div>
+
+<div class="theme-dropdown">
+    <button class="dropdown-toggle" onclick="toggleDropdown()">テーマを選択</button>
+    <div class="dropdown-menu" id="dropdown-menu">
+        <button class="white" onclick="setTheme('white')">ホワイト</button>
+        <button class="gray" onclick="setTheme('gray')">グレー</button>
+        <button class="blue" onclick="setTheme('blue')">ブルー</button>
+        <button class="green" onclick="setTheme('green')">グリーン</button>
+        <button class="pink" onclick="setTheme('pink')">ピンク</button>
+    </div>
+</div>
+
+    <div class="todo-container">
+        <div class="todo-input-container">
+            <input type="text" id="todo-input" placeholder="新たなタスクを追加" onkeydown="handleKeyDown(event)">
+            <button class="add-button" onclick="addTodo()">追加</button>
+        </div>
+        <ul id="todo-list"></ul>
+
+        <div id="celebration" class="animation celebration">🎉 すべてのタスクを完了しました！ 🎉</div>
+        <div id="sad-animation" class="animation sad-animation">😞 次こそ頑張りましょう！ 😞</div>
+
+        <div class="control-buttons">
+            <button id="finish-button" onclick="finishList()">リタイア</button>
+            <button id="clear-button" onclick="clearTasks()">クリア</button>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Function to update the theme by setting the CSS variables dynamically
+        function setTheme(theme) {
+            const root = document.documentElement;
+            const themes = {
+                white: { '--main-bg-color': '#ffffff', '--accent-color': '#333333', '--text-color': '#333', '--container-bg-color': '#f5f5f5' },
+                gray: { '--main-bg-color': '#9e9e9e', '--accent-color': '#424242', '--text-color': '#fff', '--container-bg-color': '#616161' },
+                blue: { '--main-bg-color': '#b3e5fc', '--accent-color': '#81d4fa', '--text-color': '#333', '--container-bg-color': '#fff' },
+                green: { '--main-bg-color': '#a5d6a7', '--accent-color': '#66bb6a', '--text-color': '#333', '--container-bg-color': '#e8f5e9' },
+                pink: { '--main-bg-color': '#f8bbd0', '--accent-color': '#ec407a', '--text-color': '#333', '--container-bg-color': '#fce4ec' }
+            };
+            const themeSettings = themes[theme];
+            for (const [key, value] of Object.entries(themeSettings)) {
+                root.style.setProperty(key, value);
+            }
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const value = input.value.trim();
+            if (!value) return;
+
+            const listItem = document.createElement('li');
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.onchange = checkCompletion;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(value));
+
+            const controls = document.createElement('div');
+            controls.className = 'task-controls';
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.onclick = () => editTask(label);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => listItem.remove();
+
+            controls.appendChild(editButton);
+            controls.appendChild(deleteButton);
+
+            listItem.appendChild(label);
+            listItem.appendChild(controls);
+
+            document.getElementById('todo-list').appendChild(listItem);
+            input.value = '';
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                addTodo();
+            }
+        }
+
+        function checkCompletion() {
+            const allChecked = Array.from(document.querySelectorAll('#todo-list input[type="checkbox"]')).every(checkbox => checkbox.checked);
+            if (allChecked) {
+                document.getElementById('celebration').classList.add('active-animation');
+                document.getElementById('clear-button').style.display = 'block'; // Show the clear button
+                document.getElementById('finish-button').style.display = 'none'; // Hide the finish button
+            }
+        }
+
+        function finishList() {
+            document.getElementById('finish-button').style.display = 'none';
+            document.getElementById('clear-button').style.display = 'block';
+            document.getElementById('sad-animation').classList.add('active-animation');
+        }
+
+        function clearTasks() {
+            document.getElementById('todo-list').innerHTML = '';
+            document.getElementById('finish-button').style.display = 'block';
+            document.getElementById('clear-button').style.display = 'none';
+            document.querySelectorAll('.animation').forEach(el => {
+                el.classList.remove('active-animation');
+            });
+        }
+
+        function editTask(label) {
+            const newTask = prompt('Edit Task', label.textContent);
+            if (newTask) label.lastChild.textContent = newTask;
+        }
+
+　　　function toggleDropdown() {
+    const menu = document.getElementById('dropdown-menu');
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+// ドロップダウン外をクリックしたら閉じる
+window.addEventListener('click', (event) => {
+    const menu = document.getElementById('dropdown-menu');
+    const toggle = document.querySelector('.dropdown-toggle');
+    if (menu && !menu.contains(event.target) && !toggle.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+    </script>
+</body>
+</html>
