@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautiful Timer</title>
+  <style>
+    /* デフォルトテーマ（ホワイト） */
+    :root {
+      --primary-color: #ffffff;
+      --secondary-color: #f0f0f0;
+      --accent-color: #333333;
+    }
+
+    .white {
+      --primary-color: #ffffff;
+      --secondary-color: #f0f0f0;
+      --accent-color: #333333;
+    }
+
+    .gray {
+      --primary-color: #dcdcdc;
+      --secondary-color: #d0d0d0;
+      --accent-color: #444444;
+    }
+
+    .blue {
+      --primary-color: #e0f7fa;
+      --secondary-color: #b2ebf2;
+      --accent-color: #00796b;
+    }
+
+    .green {
+      --primary-color: #e8f5e9;
+      --secondary-color: #c8e6c9;
+      --accent-color: #388e3c;
+    }
+
+    .pink {
+      --primary-color: #fce4ec;
+      --secondary-color: #f8bbd0;
+      --accent-color: #c2185b;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--primary-color);
+      color: var(--accent-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .timer {
+      margin: 20px 0;
+    }
+
+    .time-display {
+      font-size: 2rem;
+      padding: 10px;
+      background-color: var(--secondary-color);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      opacity: 0.8;
+    }
+
+    .theme-selector {
+      margin-top: 20px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .theme-selector label {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    #themeSelect {
+      padding: 10px 15px;
+      font-size: 1rem;
+      background-color: var(--secondary-color);
+      border: 2px solid #9c9c9c;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #000000;
+      outline: none;
+    }
+
+    #themeSelect:hover {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      box-shadow: 0 4px 8px rgb(217 207 207 / 20%);
+    }
+
+    #themeSelect:focus {
+      border-color: #9c9c9c;
+      box-shadow: 0 0 5px rgb(0 0 0 / 30%);
+    }
+
+    #themeSelect option {
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: var(--accent-color);
+    }
+
+    #themeSelect option:hover {
+      background-color: var(--secondary-color);
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 600px) {
+      .time-display {
+        font-size: 1.5rem;
+        padding: 8px;
+      }
+
+      .buttons button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+
+      .theme-selector {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      #themeSelect {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+
+      .container {
+        max-width: 90%;
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .time-display {
+        font-size: 1.2rem;
+      }
+
+      .buttons button {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+
+      #themeSelect {
+        font-size: 0.8rem;
+        padding: 7px 10px;
+      }
+
+      .container {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="white">
+  <div class="container">
+    <h1>タイマー</h1>
+    <div class="timer">
+      <div class="time-display" id="timeDisplay">00:00:00</div>
+      <div class="buttons">
+        <button id="startStopButton">スタート</button>
+        <button id="resetButton">リセット</button>
+      </div>
+      <input type="number" id="hours" placeholder="時間" min="0" style="width: 60px;">
+      <input type="number" id="minutes" placeholder="分" min="0" max="59" style="width: 60px;">
+      <input type="number" id="seconds" placeholder="秒" min="0" max="59" style="width: 60px;">
+    </div>
+    <div class="theme-selector">
+      <label for="themeSelect">テーマ:</label>
+      <select id="themeSelect">
+        <option value="white">ホワイト</option>
+        <option value="gray">グレー</option>
+        <option value="blue">ブルー</option>
+        <option value="green">グリーン</option>
+        <option value="pink">ピンク</option>
+      </select>
+    </div>
+  </div>
+  <script>
+    let timerInterval;
+    const timeDisplay = document.getElementById("timeDisplay");
+    const startStopButton = document.getElementById("startStopButton");
+    const themeSelect = document.getElementById("themeSelect");
+
+    function formatTime(hours, minutes, seconds) {
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function updateTimeDisplay() {
+      const hoursInput = document.getElementById("hours").value || 0;
+      const minutesInput = document.getElementById("minutes").value || 0;
+      const secondsInput = document.getElementById("seconds").value || 0;
+      timeDisplay.textContent = formatTime(hoursInput, minutesInput, secondsInput);
+    }
+
+    function startStop() {
+      const hoursInput = document.getElementById("hours").value || 0;
+      const minutesInput = document.getElementById("minutes").value || 0;
+      const secondsInput = document.getElementById("seconds").value || 0;
+
+      let totalSeconds = +hoursInput * 3600 + +minutesInput * 60 + +secondsInput;
+
+      if (totalSeconds > 0) {
+        startStopButton.textContent = "ストップ"; // ボタンを「ストップ」に変更
+        startStopButton.removeEventListener("click", startStop);
+        startStopButton.addEventListener("click", stop);
+        timerInterval = setInterval(() => {
+          if (totalSeconds <= 0) {
+            clearInterval(timerInterval);
+            alert("タイマーが終了しました！");
+            startStopButton.textContent = "スタート";
+            startStopButton.removeEventListener("click", stop);
+            startStopButton.addEventListener("click", startStop);
+            return;
+          }
+          totalSeconds--;
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          timeDisplay.textContent = formatTime(hours, minutes, seconds);
+        }, 1000);
+      }
+    }
+
+    function stop() {
+      clearInterval(timerInterval);
+      startStopButton.textContent = "スタート";
+      startStopButton.removeEventListener("click", stop);
+      startStopButton.addEventListener("click", startStop);
+    }
+
+    function reset() {
+      clearInterval(timerInterval);
+      timeDisplay.textContent = "00:00:00";
+      startStopButton.textContent = "スタート";
+      startStopButton.removeEventListener("click", stop);
+      startStopButton.addEventListener("click", startStop);
+    }
+
+    function changeTheme() {
+      document.body.className = themeSelect.value;
+    }
+
+    startStopButton.addEventListener("click", startStop);
+    document.getElementById("resetButton").addEventListener("click", reset);
+    themeSelect.addEventListener("change", changeTheme);
+    document.getElementById("hours").addEventListener("input", updateTimeDisplay);
+    document.getElementById("minutes").addEventListener("input", updateTimeDisplay);
+    document.getElementById("seconds").addEventListener("input", updateTimeDisplay);
+  </script>
+</body>
+</html>
